@@ -92,7 +92,7 @@ h1{font:700 30px/1.1 Unbounded,Manrope,sans-serif;margin:8px 0 6px;letter-spacin
 
 <script>
 // === НАСТРОЙКИ ===
-const API_URL = "https://ВСТАВЬ-АДРЕС-ТУННЕЛЯ";   // https-адрес API бота (без / в конце)
+const API_URL = "https://chechetka.duckdns.org:8443";   // https-адрес API бота (без / в конце)
 const tg = window.Telegram && Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); try { tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); tg.disableVerticalSwipes(); } catch(e){} }
 
@@ -183,7 +183,9 @@ async function send(){
     const d=await api('/api/chat',{char:id,text});
     if(cur&&cur.id===id){msgs.push({role:'assistant',content:d.reply});save();renderMsgs()}
   }catch(e){
-    if(cur&&cur.id===id){msgs.push({role:'err',content:'Не удалось получить ответ. Нажми, чтобы повторить.'});renderMsgs()}
+    const t=String(e&&e.message);
+    const why=API_URL.includes('ВСТАВЬ')?'В index.html не задан API_URL.':t==='401'?'Чат работает только внутри Telegram: открой через кнопку «Персонажи» в боте.':(e instanceof TypeError)?'Нет связи с сервером. Проверь API_URL и что бот запущен.':'Сервер ответил ошибкой '+t+'. Нажми, чтобы повторить.';
+    if(cur&&cur.id===id){msgs.push({role:'err',content:why});renderMsgs()}
   }
   busy=false;$('send').disabled=false;
 }
